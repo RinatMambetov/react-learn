@@ -6,57 +6,62 @@ import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
 import MyInput from "./components/UI/input/MyInput";
+import PostForm from "./components/PostForm";
+import MySelect from "./components/UI/select/MySelect";
 
 function App() {
   const [posts, setPosts] = useState([
-    { id: 1, title: "JavaScript 1", body: "Description" },
-    { id: 2, title: "JavaScript 2", body: "Description" },
-    { id: 3, title: "JavaScript 3", body: "Description" },
+    { id: 1, title: "qJavaScript 1", body: "eDescription" },
+    { id: 2, title: "aJavaScript 2", body: "dDescription" },
+    { id: 3, title: "zJavaScript 3", body: "cDescription" },
+    // { id: 1, title: "JavaScript 1", body: "Description" },
+    // { id: 2, title: "JavaScript 2", body: "Description" },
+    // { id: 3, title: "JavaScript 3", body: "Description" },
   ]);
 
-  // const [title, setTitle] = useState("");
-  // const [body, setBody] = useState("");
-  // const bodyInputRef = useRef();
-  const [post, setPost] = useState({ title: "", body: "" });
+  const [selectedSort, setSelectedSort] = useState("");
 
-  const addNewPost = (e) => {
-    e.preventDefault();
-    // console.log("title", title);
-    // console.log("bodyInputRef", bodyInputRef.current.value);
+  const createPost = (newPost) => {
+    setPosts([...posts, newPost]);
+  };
 
-    // const newPost = { id: Date.now(), title, body };
-    // console.log("newPost", newPost);
+  // Получаем пост из дочернего элемента
+  const removePost = (post) => {
+    setPosts(posts.filter((p) => p.id !== post.id));
+  };
 
-    setPosts([...posts, { ...post, id: Date.now() }]);
-    // setTitle("");
-    // setBody("");
-    setPost({ title: "", body: "" });
+  const sortPosts = (sort) => {
+    setSelectedSort(sort);
+    // console.log("sort", sort);
+    setPosts([...posts].sort((a, b) => a[sort].localeCompare(b[sort])));
   };
 
   return (
     <div className="App">
-      <form>
-        {/* управляемый компонент */}
-        <MyInput
-          value={post.title}
-          // onChange={(e) => setTitle(e.target.value)}
-          onChange={(e) => setPost({ ...post, title: e.target.value })}
-          type="text"
-          placeholder="post name"
+      <PostForm create={createPost} />
+      <hr style={{ margin: "15px 0" }}></hr>
+      <div>
+        <MySelect
+          value={selectedSort}
+          onChange={sortPosts}
+          defaultValue={"Sort by"}
+          options={[
+            { value: "title", name: "By name" },
+            { value: "body", name: "By description" },
+          ]}
         />
-        {/* <input ref={bodyInputRef} type="text" /> */}
-        {/* неуправляемый компонент */}
-        <MyInput
-          value={post.body}
-          // onChange={(e) => setBody(e.target.value)}
-          onChange={(e) => setPost({ ...post, body: e.target.value })}
-          // ref={bodyInputRef}
-          type="text"
-          placeholder="post description"
-        />
-        <MyButton onClick={addNewPost}>Create post</MyButton>
-      </form>
-      <PostList posts={posts} title="List of JS posts" />
+      </div>
+      {/* <div>
+        <select>
+          <option value="value">By name</option>{" "}
+          <option value="value">By description</option>
+        </select>
+      </div> */}
+      {posts.length !== 0 ? (
+        <PostList posts={posts} title="List of JS posts" remove={removePost} />
+      ) : (
+        <h1 style={{ textAlign: "center" }}>Посты не найдены</h1>
+      )}
     </div>
   );
 }
