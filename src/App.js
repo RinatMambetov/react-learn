@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import Counter from "./components/Counter";
 import ClassCounter from "./components/ClassCounter";
 import "./styles/App.css";
@@ -14,12 +14,26 @@ function App() {
     { id: 1, title: "qJavaScript 1", body: "eDescription" },
     { id: 2, title: "aJavaScript 2", body: "dDescription" },
     { id: 3, title: "zJavaScript 3", body: "cDescription" },
-    // { id: 1, title: "JavaScript 1", body: "Description" },
-    // { id: 2, title: "JavaScript 2", body: "Description" },
-    // { id: 3, title: "JavaScript 3", body: "Description" },
   ]);
 
   const [selectedSort, setSelectedSort] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const sortedPosts = useMemo(() => {
+    // console.log("отработала функция getSortedPosts");
+    if (selectedSort)
+      return [...posts].sort((a, b) =>
+        a[selectedSort].localeCompare(b[selectedSort])
+      );
+    else return posts;
+  }, [selectedSort, posts]);
+
+  const sortedAndSearchedPosts = useMemo(() => {
+    // console.log("отработала функция sortedAndSearchedPosts");
+    return sortedPosts.filter((post) =>
+      post.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, sortedPosts]);
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
@@ -32,33 +46,18 @@ function App() {
 
   const sortPosts = (sort) => {
     setSelectedSort(sort);
-    // console.log("sort", sort);
-    setPosts([...posts].sort((a, b) => a[sort].localeCompare(b[sort])));
   };
 
   return (
     <div className="App">
       <PostForm create={createPost} />
       <hr style={{ margin: "15px 0" }}></hr>
-      <div>
-        <MySelect
-          value={selectedSort}
-          onChange={sortPosts}
-          defaultValue={"Sort by"}
-          options={[
-            { value: "title", name: "By name" },
-            { value: "body", name: "By description" },
-          ]}
+      {sortedAndSearchedPosts.length !== 0 ? (
+        <PostList
+          posts={sortedAndSearchedPosts}
+          title="List of JS posts"
+          remove={removePost}
         />
-      </div>
-      {/* <div>
-        <select>
-          <option value="value">By name</option>{" "}
-          <option value="value">By description</option>
-        </select>
-      </div> */}
-      {posts.length !== 0 ? (
-        <PostList posts={posts} title="List of JS posts" remove={removePost} />
       ) : (
         <h1 style={{ textAlign: "center" }}>Посты не найдены</h1>
       )}
